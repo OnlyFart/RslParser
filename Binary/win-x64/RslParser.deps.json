@@ -1,0 +1,90 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1/win-x64",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {},
+    ".NETCoreApp,Version=v3.1/win-x64": {
+      "RslParser/1.0.0": {
+        "dependencies": {
+          "CommandLineParser": "2.8.0",
+          "HtmlAgilityPack": "1.11.24",
+          "NLog": "4.7.4",
+          "Newtonsoft.Json": "12.0.3"
+        },
+        "runtime": {
+          "RslParser.dll": {}
+        }
+      },
+      "CommandLineParser/2.8.0": {
+        "runtime": {
+          "lib/netstandard2.0/CommandLine.dll": {
+            "assemblyVersion": "2.8.0.0",
+            "fileVersion": "2.8.0.0"
+          }
+        }
+      },
+      "HtmlAgilityPack/1.11.24": {
+        "runtime": {
+          "lib/netstandard2.0/HtmlAgilityPack.dll": {
+            "assemblyVersion": "1.11.24.0",
+            "fileVersion": "1.11.24.0"
+          }
+        }
+      },
+      "Newtonsoft.Json/12.0.3": {
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.3.23909"
+          }
+        }
+      },
+      "NLog/4.7.4": {
+        "runtime": {
+          "lib/netstandard2.0/NLog.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.7.4.12037"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "RslParser/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommandLineParser/2.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eco2HlKQBY4Joz9odHigzGpVzv6pjsXnY5lziioMveQxr+i2Z7xYcIOMeZTgYiqnMtMAbXMXsVhrNfWO5vJS8Q==",
+      "path": "commandlineparser/2.8.0",
+      "hashPath": "commandlineparser.2.8.0.nupkg.sha512"
+    },
+    "HtmlAgilityPack/1.11.24": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-DLcytINO8EfCdBgMGsaz8Tvdgu2Aewoo2XX7WfZuRG9cBQRtbm8JZ4/sMRtFvzehjdIDqubdlQb8TqNfjRMEWg==",
+      "path": "htmlagilitypack/1.11.24",
+      "hashPath": "htmlagilitypack.1.11.24.nupkg.sha512"
+    },
+    "Newtonsoft.Json/12.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
+      "path": "newtonsoft.json/12.0.3",
+      "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
+    },
+    "NLog/4.7.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-gSGX/ur0P3jp17H37HW7ycXR6L1578tQbilf4HLX1t2viCDFgtwEsfHMPf0/jcuf7/qqGgoU/vKgyQ9hzxuOEQ==",
+      "path": "nlog/4.7.4",
+      "hashPath": "nlog.4.7.4.nupkg.sha512"
+    }
+  }
+}
