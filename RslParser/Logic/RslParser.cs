@@ -12,6 +12,10 @@ using RslParser.Types;
 
 namespace RslParser.Logic {
     public class RslParser {
+        private static readonly Uri _baseUrl = new Uri("https://search.rsl.ru/");
+        private static readonly Uri _startPage = new Uri("https://search.rsl.ru/ru/catalog#ltr=%D0%90&st=author");
+        private static readonly Uri _apiUrl = new Uri("https://search.rsl.ru/site/ajax-catalog?language=ru");
+        
         private static readonly Logger _logger = LogManager.GetLogger(nameof(RslParser));
         
         private readonly RslParserConfig _config;
@@ -22,11 +26,9 @@ namespace RslParser.Logic {
         
         public async Task Parse() {
             using (var client = GetClient()) {
-                var uri = new Uri("https://search.rsl.ru/ru/catalog#l=570&ltr=%D0%90&st=author");
-
-                var mainPage = await HttpClientHelper.GetStringAsync(client, uri);
+                var mainPage = await HttpClientHelper.GetStringAsync(client, _startPage);
                 if (string.IsNullOrWhiteSpace(mainPage)) {
-                    throw new Exception($"Не удалось загрузить страницу {uri}");
+                    throw new Exception($"Не удалось загрузить страницу {_startPage}");
                 }
                 
                 var doc = new HtmlDocument();
@@ -34,14 +36,14 @@ namespace RslParser.Logic {
 
                 var token = GetToken(doc);
                 if (string.IsNullOrWhiteSpace(token)) {
-                    throw new Exception($"Не получить токен со страницы {uri}");
+                    throw new Exception($"Не получить токен со страницы {_startPage}");
                 }
                 
                 client.DefaultRequestHeaders.Add("X-CSRF-Token", token);
 
                 var langs = GetLangs(doc);
                 if (langs == null || langs.Count == 0) {
-                    throw new Exception($"Не получить список языков со страницы {uri}");
+                    throw new Exception($"Не получить список языков со страницы {_startPage}");
                 }
 
                 var needRoll = _config.HasStartParams();
@@ -49,7 +51,7 @@ namespace RslParser.Logic {
 
                 int errorCount = 0;
                 foreach (var lang in langs) {
-                    var code = lang.Attributes["data-langcode"].Value;
+                    var code = lang.Attributes["data-language"].Value;
                     
                     var letters = GetLetters(lang);
                     if (letters == null || letters.Count == 0) {
@@ -76,7 +78,7 @@ namespace RslParser.Logic {
                                 return;
                             }
                             
-                            response = await GetSearchResponse(client, letter, code, page);
+                            response = await GetSearchResponse(client, letter, page);
                             if (response == null) {
                                 page++;
                                 errorCount++;
@@ -93,7 +95,7 @@ namespace RslParser.Logic {
                             }
                             
                             foreach (var link in links) {
-                                var bookLink = new Uri("https://search.rsl.ru" + link);
+                                var bookLink = new Uri(_baseUrl, link);
 
                                 var bookResponse = await HttpClientHelper.GetStringAsync(client, bookLink);
                                 if (string.IsNullOrWhiteSpace(bookResponse)) {
@@ -162,16 +164,15 @@ namespace RslParser.Logic {
                 ?.Select(t => t.InnerText)
                 ?.ToList();
         }
-        
+
         /// <summary>
         /// Получение результатов поискового запроса
         /// </summary>
         /// <param name="client">HttpClient</param>
         /// <param name="letter">Буква</param>
-        /// <param name="code">Код языка</param>
         /// <param name="page">Страница</param>
         /// <returns></returns>
-        private static async Task<SearchResponse> GetSearchResponse(HttpClient client, string letter, string code, int page) {
+        private static async Task<SearchResponse> GetSearchResponse(HttpClient client, string letter, int page) {
             var list = new List<KeyValuePair<string, string>> {
                 new KeyValuePair<string, string>("SearchFilterForm[elfunds]", "0"),
                 new KeyValuePair<string, string>("SearchFilterForm[nofile]", "0"),
@@ -185,14 +186,13 @@ namespace RslParser.Logic {
                 new KeyValuePair<string, string>("SearchFilterForm[fdateto]", ""),
                 new KeyValuePair<string, string>("SearchFilterForm[sortby]", "author"),
                 new KeyValuePair<string, string>("SearchFilterForm[page]", page.ToString()),
-                new KeyValuePair<string, string>("SearchFilterForm[languages][]", code),
                 new KeyValuePair<string, string>("SearchFilterForm[letter]", letter),
                 new KeyValuePair<string, string>("SearchFilterForm[searchType]", "author"),
                 new KeyValuePair<string, string>("SearchFilterForm[updatedFields][]", "letter")
             };
 
             var dataContent = new FormUrlEncodedContent(list.ToArray());
-            using (var response = await HttpClientHelper.PostAsync(client, new Uri("https://search.rsl.ru/site/ajax-catalog?language=ru"), dataContent)) {
+            using (var response = await HttpClientHelper.PostAsync(client, _apiUrl, dataContent)) {
                 return response == null ? null : JsonConvert.DeserializeObject<SearchResponse>(await response.Content.ReadAsStringAsync());
             }
         }
