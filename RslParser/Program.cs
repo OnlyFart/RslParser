@@ -50,7 +50,7 @@ namespace RslParser {
                         Console.WriteLine("Параметров не передано, будет произведен полный обход");
                     }
 
-                    new Logic.RslParser(config).Parse().Wait();
+                    new Logic.RslParser(config).Process().Wait();
                     
                     Console.WriteLine("Обработка завершена");
                 })

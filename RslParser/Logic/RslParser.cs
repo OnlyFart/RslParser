@@ -24,33 +24,13 @@ namespace RslParser.Logic {
             _config = config;
         }
         
-        public async Task Parse() {
+        public async Task Process() {
             using (var client = GetClient()) {
-                var mainPage = await HttpClientHelper.GetStringAsync(client, _startPage);
-                if (string.IsNullOrWhiteSpace(mainPage)) {
-                    throw new Exception($"Не удалось загрузить страницу {_startPage}");
-                }
-                
-                var doc = new HtmlDocument();
-                doc.LoadHtml(mainPage);
-
-                var token = GetToken(doc);
-                if (string.IsNullOrWhiteSpace(token)) {
-                    throw new Exception($"Не получить токен со страницы {_startPage}");
-                }
-                
-                client.DefaultRequestHeaders.Add("X-CSRF-Token", token);
-
-                var langs = GetLangs(doc);
-                if (langs == null || langs.Count == 0) {
-                    throw new Exception($"Не получить список языков со страницы {_startPage}");
-                }
-
                 var needRoll = _config.HasStartParams();
                 var needStop = _config.HasEndParams();
 
-                int errorCount = 0;
-                foreach (var lang in langs) {
+                var errorCount = 0;
+                foreach (var lang in GetLangs(await ProcessMainPage(client))) {
                     var code = lang.Attributes["data-language"].Value;
                     
                     var letters = GetLetters(lang);
@@ -94,9 +74,7 @@ namespace RslParser.Logic {
                                 continue;
                             }
                             
-                            foreach (var link in links) {
-                                var bookLink = new Uri(_baseUrl, link);
-
+                            foreach (var bookLink in links.Select(link => new Uri(_baseUrl, link))) {
                                 var bookResponse = await HttpClientHelper.GetStringAsync(client, bookLink);
                                 if (string.IsNullOrWhiteSpace(bookResponse)) {
                                     errorCount++;
@@ -107,12 +85,38 @@ namespace RslParser.Logic {
                                 _logger.Info($"{bookLink} done");
 
                                 var bookDoc = ParseBook(bookResponse);
+                                bookDoc.Page = page;
+                                bookDoc.Letter = letter;
                                 bookDoc.Link = bookLink.ToString();
                             }
                         } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage));
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// Обработка завязанная на главную страницу
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns>Контент главной страницы</returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<HtmlDocument> ProcessMainPage(HttpClient client) {
+            var mainPage = await HttpClientHelper.GetStringAsync(client, _startPage);
+            if (string.IsNullOrWhiteSpace(mainPage)) {
+                throw new Exception($"Не удалось загрузить страницу {_startPage}");
+            }
+                
+            var doc = new HtmlDocument();
+            doc.LoadHtml(mainPage);
+
+            var token = GetToken(doc);
+            if (string.IsNullOrWhiteSpace(token)) {
+                throw new Exception($"Не получить токен со страницы {_startPage}");
+            }
+                
+            client.DefaultRequestHeaders.Add("X-CSRF-Token", token);
+            return doc;
         }
         
         /// <summary>
@@ -147,8 +151,14 @@ namespace RslParser.Logic {
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
-        private static List<HtmlNode> GetLangs(HtmlDocument doc) {
-            return doc.DocumentNode.Descendants().Where(t => t.Name == "div" && t.Attributes["data-langcode"]?.Value != null).ToList();
+        private static IEnumerable<HtmlNode> GetLangs(HtmlDocument doc) {
+            var langs = doc.DocumentNode.Descendants().Where(t => t.Name == "div" && t.Attributes["data-langcode"]?.Value != null).ToList();
+            
+            if (langs == null || langs.Count == 0) {
+                throw new Exception($"Не получить список языков со страницы {_startPage}");
+            }
+            
+            return langs;
         }
         
         /// <summary>

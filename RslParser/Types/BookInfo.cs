@@ -21,6 +21,16 @@ namespace RslParser.Types {
         public string Link;
         
         /// <summary>
+        /// Буква по которой найдена книга
+        /// </summary>
+        public string Letter;
+        
+        /// <summary>
+        /// Страница, на которой найдена книга
+        /// </summary>
+        public int Page;
+        
+        /// <summary>
         /// Все поля из блока "Описание"
         /// </summary>
         public List<BookInfoValue> Values = new List<BookInfoValue>();
