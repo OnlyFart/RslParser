@@ -37,15 +37,15 @@ namespace RslParser.Logic {
                         if (response == null) {
                             page++;
                             errorCount++;
-                            _logger.Error($"Обработка буквы '{letter}', страница {page} завершена с ошибкой");
+                            _logger.Error($"Обработка буквы '{letter.Letter}', страница {page} завершена с ошибкой");
                             continue;
                         }
 
-                        _logger.Info($"Обработка буквы '{letter}', страница {page}/{response.MaxPage}");
+                        _logger.Info($"Обработка буквы '{letter.Letter}', страница {page}/{response.MaxPage}");
                         var links = GetBookLinks(response.Content);
                         if (links == null || links.Count == 0) {
                             errorCount++;
-                            _logger.Error($"Не удалось получить список ссылок на книги для '{letter}', страница {page}/{response.MaxPage}");
+                            _logger.Error($"Не удалось получить список ссылок на книги для '{letter.Letter}', страница {page}/{response.MaxPage}");
                             continue;
                         }
 
