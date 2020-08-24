@@ -16,3 +16,11 @@ rslparser --sl Г --sp 10 --proxy 127.0.0.1:8888
 ```
 rslparser --help
 ```
+
+Для того, что бы отправлять результаты в стороннюю систему необходимо указать ее Url в файле appsettings.json 
+```
+{
+    "ProcessUrl": "https://test.com"
+}
+```
+Данные отправятся по протоколу POST в формате JSON
