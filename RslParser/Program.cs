@@ -46,6 +46,10 @@ namespace RslParser {
                         config.Proxy = new WebProxy(split[0], port);
                     }
 
+                    if (config.ProcessUrl != null) {
+                        Console.WriteLine($"Данные отправляем по адресу {config.ProcessUrl}");
+                    }
+
                     if (config.HasStartParams()) {
                         Console.WriteLine($"Стартуем с буквы '{config.StartParams.Letter}' и страницы '{config.StartParams.Page}'");
                     }
