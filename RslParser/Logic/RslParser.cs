@@ -26,31 +26,14 @@ namespace RslParser.Logic {
 
         public async Task Process() {
             using (var client = GetClient()) {
-                var needStart = _config.HasStartParams();
-                var needStop = _config.HasEndParams();
-
                 var errorCount = 0;
-                var letters = GetLangs(await ProcessMainPage(client))?.SelectMany(GetLetters).Distinct().ToList();
-                if (letters == null || letters.Count == 0) {
-                    _logger.Error($"Не удалось получить список букв для языка");
-                    return;
-                }
 
-                foreach (var letter in letters.SkipWhile(l => needStart && !string.Equals(_config.StartParams.Letter, l, StringComparison.InvariantCultureIgnoreCase))) {
-                    var page = 1;
+                foreach (var letter in GetLetters(await ProcessMainPage(client))) {
+                    var page = letter.StartPage;
                     SearchResponse response;
 
-                    if (needStart) {
-                        page = _config.StartParams.Page;
-                        needStart = false;
-                    }
-
                     do {
-                        if (needStop && string.Equals(_config.EndParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase) && _config.EndParams.Page < page) {
-                            return;
-                        }
-
-                        response = await GetSearchResponse(client, letter, page);
+                        response = await GetSearchResponse(client, letter.Letter, page);
                         if (response == null) {
                             page++;
                             errorCount++;
@@ -78,12 +61,12 @@ namespace RslParser.Logic {
 
                             var bookDoc = ParseBook(bookResponse);
                             bookDoc.Page = page;
-                            bookDoc.Letter = letter;
+                            bookDoc.Letter = letter.Letter;
                             bookDoc.Link = bookLink.ToString();
 
                             await ProcessBookInfo(bookDoc);
                         }
-                    } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage));
+                    } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage) && page <= letter.EndPage);
                 }
             }
         }
@@ -140,18 +123,43 @@ namespace RslParser.Logic {
         }
         
         /// <summary>
-        /// Получение списка доступных языков со страницы
+        /// Получение списка доступных уникальных букв для поиска книг
         /// </summary>
         /// <param name="doc"></param>
         /// <returns></returns>
-        private static IEnumerable<HtmlNode> GetLangs(HtmlDocument doc) {
+        private List<SearchLetter> GetLetters(HtmlDocument doc) {
             var langs = doc.DocumentNode.Descendants().Where(t => t.Name == "div" && t.Attributes["data-langcode"]?.Value != null).ToList();
             
             if (langs == null || langs.Count == 0) {
                 throw new Exception($"Не получить список языков со страницы {_startPage}");
             }
-            
-            return langs;
+
+            var letters = langs.SelectMany(GetLetters).Distinct().ToList();
+            if (letters.Count == 0) {
+                throw new Exception($"Не удалось получить список букв для обхода");
+            }
+
+            if (_config.HasStartParams()) {
+                var index = letters.FindIndex(l => string.Equals(l.Letter, _config.StartParams.Letter, StringComparison.InvariantCultureIgnoreCase));
+                if (index == -1) {
+                    throw new Exception($"Не удалось найти букву '{_config.StartParams.Letter}'");
+                }
+
+                letters = letters.GetRange(index, letters.Count - index - 1);
+                letters[0].StartPage = _config.StartParams.Page;
+            }
+
+            if (_config.HasEndParams()) {
+                var index = letters.FindIndex(l => string.Equals(l.Letter, _config.EndParams.Letter, StringComparison.InvariantCultureIgnoreCase));
+                if (index == -1) {
+                    throw new Exception($"Не удалось найти букву '{_config.EndParams.Letter}'");
+                }
+                
+                letters = letters.GetRange(0, index + 1);
+                letters.Last().EndPage = _config.EndParams.Page;
+            }
+
+            return letters;
         }
         
         /// <summary>
@@ -159,12 +167,12 @@ namespace RslParser.Logic {
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        private static List<string> GetLetters(HtmlNode node) {
+        private static List<SearchLetter> GetLetters(HtmlNode node) {
             return node.Descendants()
                 .FirstOrDefault(t => t.Name == "div")
                 ?.Descendants()
                 ?.Where(t => t.Name == "a" && t.Attributes["class"]?.Value?.Contains("alphacat-letter rsl-filter") == true)
-                ?.Select(t => t.InnerText)
+                ?.Select(t => new SearchLetter { Letter = t.InnerText })
                 ?.ToList();
         }
 
