@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 
 namespace RslParser.Configs {
@@ -21,6 +22,11 @@ namespace RslParser.Configs {
         /// Прокси для запросов
         /// </summary>
         public WebProxy Proxy;
+        
+        /// <summary>
+        /// Url для отправки данных по книгам
+        /// </summary>
+        public Uri ProcessUrl;
         
         /// <summary>
         /// Указаны ли стартовые параметра

@@ -11,6 +11,9 @@
         "dependencies": {
           "CommandLineParser": "2.8.0",
           "HtmlAgilityPack": "1.11.24",
+          "Microsoft.Extensions.Configuration": "3.1.7",
+          "Microsoft.Extensions.Configuration.Binder": "3.1.7",
+          "Microsoft.Extensions.Configuration.Json": "3.1.7",
           "NLog": "4.7.4",
           "Newtonsoft.Json": "12.0.3"
         },
@@ -31,6 +34,102 @@
           "lib/netstandard2.0/HtmlAgilityPack.dll": {
             "assemblyVersion": "1.11.24.0",
             "fileVersion": "1.11.24.0"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration.Abstractions/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.Abstractions.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration.Binder/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.Binder.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration.FileExtensions/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "3.1.7",
+          "Microsoft.Extensions.FileProviders.Physical": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.FileExtensions.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.Configuration.Json/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "3.1.7",
+          "Microsoft.Extensions.Configuration.FileExtensions": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Configuration.Json.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.FileProviders.Abstractions/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.FileProviders.Abstractions.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.FileProviders.Physical/3.1.7": {
+        "dependencies": {
+          "Microsoft.Extensions.FileProviders.Abstractions": "3.1.7",
+          "Microsoft.Extensions.FileSystemGlobbing": "3.1.7"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.FileProviders.Physical.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.FileSystemGlobbing/3.1.7": {
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.FileSystemGlobbing.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
+          }
+        }
+      },
+      "Microsoft.Extensions.Primitives/3.1.7": {
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Extensions.Primitives.dll": {
+            "assemblyVersion": "3.1.7.0",
+            "fileVersion": "3.100.720.37108"
           }
         }
       },
@@ -71,6 +170,69 @@
       "sha512": "sha512-DLcytINO8EfCdBgMGsaz8Tvdgu2Aewoo2XX7WfZuRG9cBQRtbm8JZ4/sMRtFvzehjdIDqubdlQb8TqNfjRMEWg==",
       "path": "htmlagilitypack/1.11.24",
       "hashPath": "htmlagilitypack.1.11.24.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JCVsQYNZNGeLXWMw6tkCZ8Wa2IQKF9AiLKeq9Ff2XvGJTMzhYEHAzF/FvHdeBBhPiOf+Kl1t6mdcHL93kUz6MA==",
+      "path": "microsoft.extensions.configuration/3.1.7",
+      "hashPath": "microsoft.extensions.configuration.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration.Abstractions/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-WJEbrrIgly95D9rM8Gwr4w8sbYla6/iOcCZ0UE7+Qg/Q8NnQJwAJ60Lq1A26zbNE8Fm1fkbGU90LDl8e+BoRSQ==",
+      "path": "microsoft.extensions.configuration.abstractions/3.1.7",
+      "hashPath": "microsoft.extensions.configuration.abstractions.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration.Binder/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-FYQ64i7DwYO6XDdOFi+VkoRDDzel570I+X/vTYt6mVJWNj1SAstXwZ71P5d6P2Cei+cT950NiScOwj4F8EUeTA==",
+      "path": "microsoft.extensions.configuration.binder/3.1.7",
+      "hashPath": "microsoft.extensions.configuration.binder.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration.FileExtensions/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MyT8ALBcE5vZ/cbkBhoo8ZFqj6AAGUrPXQlFdLAkxS11WO0vVxtJwVQVIbIM79zWI94ZkMq8Mw4E9MvuspDj9w==",
+      "path": "microsoft.extensions.configuration.fileextensions/3.1.7",
+      "hashPath": "microsoft.extensions.configuration.fileextensions.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Configuration.Json/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-BGaWgKBQPXeRlv8g6ZKTd6clFsd7p0GBwHBIU0zxI4iy4S6xjGzpWr6LOAbzEqP5Fo2QBgL8Niq2lZONcmGLZQ==",
+      "path": "microsoft.extensions.configuration.json/3.1.7",
+      "hashPath": "microsoft.extensions.configuration.json.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.FileProviders.Abstractions/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-nasMSdDlIIBcKgGVHoZdFSmfUY1bI0zkvfZTsWLlEFcMCVD0fzcgsVlkeZTzPLJV0w7Uwq3okOgMWpU1nFEhxg==",
+      "path": "microsoft.extensions.fileproviders.abstractions/3.1.7",
+      "hashPath": "microsoft.extensions.fileproviders.abstractions.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.FileProviders.Physical/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mo21yJfL3oGCjC/rcwdbs2z4KGL9R5BvTfwYR31ueyg3l77i9oPCryMtlSZ4TvpI5duENNEpZyzcpaycqERdZQ==",
+      "path": "microsoft.extensions.fileproviders.physical/3.1.7",
+      "hashPath": "microsoft.extensions.fileproviders.physical.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.FileSystemGlobbing/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Cenv9mtZdSZ9u09rGYl3ejMB19gIOdRryXk/rYEzQsyrBTTuNzmRHwtHdy640P08DL1Rdu+0z/s2lpvFbZV8Hw==",
+      "path": "microsoft.extensions.filesystemglobbing/3.1.7",
+      "hashPath": "microsoft.extensions.filesystemglobbing.3.1.7.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Primitives/3.1.7": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-sa17s3vDAXTuIVGxuJcK713i0B0iaUoiwY4Sl2SLHhMqM8snznn0YVGiZAVkoKEUFWjvIg1Z/JNmAicBamI4mg==",
+      "path": "microsoft.extensions.primitives/3.1.7",
+      "hashPath": "microsoft.extensions.primitives.3.1.7.nupkg.sha512"
     },
     "Newtonsoft.Json/12.0.3": {
       "type": "package",

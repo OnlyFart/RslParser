@@ -31,7 +31,7 @@ namespace RslParser.Helpers {
             return null;
         }
 
-        public static async Task<HttpResponseMessage> PostAsync(HttpClient client, Uri url, FormUrlEncodedContent data) {
+        public static async Task<HttpResponseMessage> PostAsync(HttpClient client, Uri url, ByteArrayContent data) {
             for (var i = 0; i < 3; i++) {
                 try {
                     return await client.PostAsync(url, data);

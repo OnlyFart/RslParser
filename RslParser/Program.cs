@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using CommandLine;
+using Microsoft.Extensions.Configuration;
 using RslParser.Configs;
 
 namespace RslParser {
@@ -10,6 +11,12 @@ namespace RslParser {
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(options => {
+                    IConfiguration appConfig = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json", true, true)
+                        .Build();
+
+                    var processUrl = appConfig.GetValue<string>("ProcessUrl");
+                    
                     var config = new RslParserConfig {
                         StartParams = new Params {
                             Letter = options.StartLetter, 
@@ -19,7 +26,8 @@ namespace RslParser {
                             Letter = options.EndLetter, 
                             Page = options.EndPage
                         },
-                        MaxErrorCount = options.MaxErrorCount
+                        MaxErrorCount = options.MaxErrorCount,
+                        ProcessUrl =  string.IsNullOrWhiteSpace(processUrl) ? null : new Uri(processUrl)
                     };
 
                     if (!string.IsNullOrWhiteSpace(options.Proxy)) {

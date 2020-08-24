@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -26,7 +27,7 @@ namespace RslParser.Logic {
         
         public async Task Process() {
             using (var client = GetClient()) {
-                var needRoll = _config.HasStartParams();
+                var needStart = _config.HasStartParams();
                 var needStop = _config.HasEndParams();
 
                 var errorCount = 0;
@@ -44,17 +45,17 @@ namespace RslParser.Logic {
                         var page = 1;
                         SearchResponse response;
                         
-                        if (needRoll && _config.StartParams.Letter != letter) {
+                        if (needStart && !string.Equals(_config.StartParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase)) {
                             continue;
                         }
 
-                        if (needRoll) {
+                        if (needStart) {
                             page = _config.StartParams.Page;
-                            needRoll = false;
+                            needStart = false;
                         }
                         
                         do {
-                            if (needStop && _config.EndParams.Letter == letter && _config.EndParams.Page < page) {
+                            if (needStop && string.Equals(_config.EndParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase) && _config.EndParams.Page < page) {
                                 return;
                             }
                             
@@ -88,6 +89,8 @@ namespace RslParser.Logic {
                                 bookDoc.Page = page;
                                 bookDoc.Letter = letter;
                                 bookDoc.Link = bookLink.ToString();
+
+                                await ProcessBookInfo(bookDoc);
                             }
                         } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage));
                     }
@@ -112,7 +115,7 @@ namespace RslParser.Logic {
 
             var token = GetToken(doc);
             if (string.IsNullOrWhiteSpace(token)) {
-                throw new Exception($"Не получить токен со страницы {_startPage}");
+                throw new Exception($"Не удалось получить токен со страницы {_startPage}");
             }
                 
             client.DefaultRequestHeaders.Add("X-CSRF-Token", token);
@@ -263,6 +266,14 @@ namespace RslParser.Logic {
             }
 
             return bookInfo;
+        }
+
+        private async Task ProcessBookInfo(BookInfo bookInfo) {
+            if (_config.ProcessUrl != null) {
+                using (var client = new HttpClient()) {
+                    await HttpClientHelper.PostAsync(client, _config.ProcessUrl, new StringContent(JsonConvert.SerializeObject(bookInfo)));
+                }
+            }
         }
     }
 }
