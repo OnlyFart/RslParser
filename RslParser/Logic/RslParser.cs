@@ -23,80 +23,71 @@ namespace RslParser.Logic {
         public RslParser(RslParserConfig config) {
             _config = config;
         }
-        
+
         public async Task Process() {
             using (var client = GetClient()) {
                 var needStart = _config.HasStartParams();
                 var needStop = _config.HasEndParams();
 
                 var errorCount = 0;
-                foreach (var lang in GetLangs(await ProcessMainPage(client))) {
-                    var code = lang.Attributes["data-language"].Value;
-                    
-                    var letters = GetLetters(lang);
-                    if (letters == null || letters.Count == 0) {
-                        _logger.Error($"Не удалось получить список букв для языка {code}");
-                        errorCount++;
-                        continue;
+                var letters = GetLangs(await ProcessMainPage(client))?.SelectMany(GetLetters).Distinct().ToList();
+                if (letters == null || letters.Count == 0) {
+                    _logger.Error($"Не удалось получить список букв для языка");
+                    return;
+                }
+
+                foreach (var letter in letters.SkipWhile(l => needStart && !string.Equals(_config.StartParams.Letter, l, StringComparison.InvariantCultureIgnoreCase))) {
+                    var page = 1;
+                    SearchResponse response;
+
+                    if (needStart) {
+                        page = _config.StartParams.Page;
+                        needStart = false;
                     }
-                    
-                    foreach (var letter in letters) {
-                        var page = 1;
-                        SearchResponse response;
-                        
-                        if (needStart && !string.Equals(_config.StartParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase)) {
+
+                    do {
+                        if (needStop && string.Equals(_config.EndParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase) && _config.EndParams.Page < page) {
+                            return;
+                        }
+
+                        response = await GetSearchResponse(client, letter, page);
+                        if (response == null) {
+                            page++;
+                            errorCount++;
+                            _logger.Error($"Обработка буквы '{letter}', страница {page} завершена с ошибкой");
                             continue;
                         }
 
-                        if (needStart) {
-                            page = _config.StartParams.Page;
-                            needStart = false;
+                        _logger.Info($"Обработка буквы '{letter}', страница {page}/{response.MaxPage}");
+                        var links = GetBookLinks(response.Content);
+                        if (links == null || links.Count == 0) {
+                            errorCount++;
+                            _logger.Error($"Не удалось получить список ссылок на книги для '{letter}', страница {page}/{response.MaxPage}");
+                            continue;
                         }
-                        
-                        do {
-                            if (needStop && string.Equals(_config.EndParams.Letter, letter, StringComparison.InvariantCultureIgnoreCase) && _config.EndParams.Page < page) {
-                                return;
-                            }
-                            
-                            response = await GetSearchResponse(client, letter, page);
-                            if (response == null) {
-                                page++;
-                                errorCount++;
-                                _logger.Error($"Обработка буквы '{letter}', языка '{code}', страница {page} завершена с ошибкой");
-                                continue;
-                            } 
 
-                            _logger.Info($"Обработка буквы '{letter}', языка '{code}', страница {page}/{response.MaxPage}");
-                            var links = GetBookLinks(response.Content);
-                            if (links == null || links.Count == 0) {
+                        foreach (var bookLink in links.Select(link => new Uri(_baseUrl, link))) {
+                            var bookResponse = await HttpClientHelper.GetStringAsync(client, bookLink);
+                            if (string.IsNullOrWhiteSpace(bookResponse)) {
                                 errorCount++;
-                                _logger.Error($"Не удалось получить список ссылок на книги для '{letter}', языка '{code}', страница {page}/{response.MaxPage}");
+                                _logger.Error($"Не удалось получить контент книги {bookLink}");
                                 continue;
                             }
-                            
-                            foreach (var bookLink in links.Select(link => new Uri(_baseUrl, link))) {
-                                var bookResponse = await HttpClientHelper.GetStringAsync(client, bookLink);
-                                if (string.IsNullOrWhiteSpace(bookResponse)) {
-                                    errorCount++;
-                                    _logger.Error($"Не удалось получить контент книги {bookLink}");
-                                    continue;
-                                }
-                                
-                                _logger.Info($"{bookLink} done");
 
-                                var bookDoc = ParseBook(bookResponse);
-                                bookDoc.Page = page;
-                                bookDoc.Letter = letter;
-                                bookDoc.Link = bookLink.ToString();
+                            _logger.Info($"{bookLink} done");
 
-                                await ProcessBookInfo(bookDoc);
-                            }
-                        } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage));
-                    }
+                            var bookDoc = ParseBook(bookResponse);
+                            bookDoc.Page = page;
+                            bookDoc.Letter = letter;
+                            bookDoc.Link = bookLink.ToString();
+
+                            await ProcessBookInfo(bookDoc);
+                        }
+                    } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage));
                 }
             }
         }
-        
+
         /// <summary>
         /// Обработка завязанная на главную страницу
         /// </summary>
