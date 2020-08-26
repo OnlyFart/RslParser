@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using CommandLine;
 using Microsoft.Extensions.Configuration;
 using RslParser.Configs;
@@ -8,6 +9,7 @@ namespace RslParser {
     class Program {
         static void Main(string[] args) {
             ServicePointManager.DefaultConnectionLimit = 100;
+            Console.OutputEncoding = Encoding.UTF8;
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(options => {
