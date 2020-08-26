@@ -26,6 +26,11 @@ namespace RslParser.Types {
         public string Letter;
         
         /// <summary>
+        /// Язык по которому найдена книга
+        /// </summary>
+        public string Lang;
+        
+        /// <summary>
         /// Страница, на которой найдена книга
         /// </summary>
         public int Page;

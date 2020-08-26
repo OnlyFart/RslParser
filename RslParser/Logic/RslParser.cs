@@ -28,7 +28,10 @@ namespace RslParser.Logic {
             using (var client = GetClient()) {
                 var errorCount = 0;
 
-                foreach (var letter in GetLetters(await ProcessMainPage(client))) {
+                var searchLetters = GetLetters(await ProcessMainPage(client));
+                _logger.Info($"Всего букв для обхода '{searchLetters.Count}'");
+                
+                foreach (var letter in searchLetters) {
                     var page = letter.StartPage;
                     SearchResponse response;
 
@@ -37,15 +40,15 @@ namespace RslParser.Logic {
                         if (response == null) {
                             page++;
                             errorCount++;
-                            _logger.Error($"Обработка буквы '{letter.Letter}', страница {page} завершена с ошибкой");
+                            _logger.Error($"Обработка буквы '{letter.Letter}', языка '{letter.Lang}', страница {page} завершена с ошибкой");
                             continue;
                         }
 
-                        _logger.Info($"Обработка буквы '{letter.Letter}', страница {page}/{response.MaxPage}");
+                        _logger.Info($"Обработка буквы '{letter.Letter}', языка '{letter.Lang}', страница {page}/{response.MaxPage}");
                         var links = GetBookLinks(response.Content);
                         if (links == null || links.Count == 0) {
                             errorCount++;
-                            _logger.Error($"Не удалось получить список ссылок на книги для '{letter.Letter}', страница {page}/{response.MaxPage}");
+                            _logger.Error($"Не удалось получить список ссылок на книги для '{letter.Letter}', языка '{letter.Lang}', страница {page}/{response.MaxPage}");
                             continue;
                         }
 
@@ -62,6 +65,7 @@ namespace RslParser.Logic {
                             var bookDoc = ParseBook(bookResponse);
                             bookDoc.Page = page;
                             bookDoc.Letter = letter.Letter;
+                            bookDoc.Lang = letter.Lang;
                             bookDoc.Link = bookLink.ToString();
 
                             await ProcessBookInfo(bookDoc);
@@ -172,7 +176,7 @@ namespace RslParser.Logic {
                 .FirstOrDefault(t => t.Name == "div")
                 ?.Descendants()
                 ?.Where(t => t.Name == "a" && t.Attributes["class"]?.Value?.Contains("alphacat-letter rsl-filter") == true)
-                ?.Select(t => new SearchLetter(t.InnerText))
+                ?.Select(t => new SearchLetter(t.InnerText, node.Attributes["data-language"]?.Value))
                 ?.ToList();
         }
 

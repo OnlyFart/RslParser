@@ -3,9 +3,11 @@ namespace RslParser.Types {
         public readonly string Letter;
         public int StartPage;
         public int EndPage;
+        public string Lang;
 
-        public SearchLetter(string letter) {
+        public SearchLetter(string letter, string lang) {
             Letter = letter;
+            Lang = lang;
             StartPage = 1;
             EndPage = int.MaxValue;
         }
@@ -14,7 +16,7 @@ namespace RslParser.Types {
             return Letter.GetHashCode();
         }
 
-        public override bool Equals(object? obj) {
+        public override bool Equals(object obj) {
             if (!(obj is SearchLetter)) {
                 return false;
             }
