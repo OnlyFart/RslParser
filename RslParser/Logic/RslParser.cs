@@ -145,7 +145,7 @@ namespace RslParser.Logic {
                     throw new Exception($"Не удалось найти букву '{_config.StartParams.Letter}'");
                 }
 
-                letters = letters.GetRange(index, letters.Count - index - 1);
+                letters = letters.GetRange(index, letters.Count - index);
                 letters[0].StartPage = _config.StartParams.Page;
             }
 
