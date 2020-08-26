@@ -172,7 +172,7 @@ namespace RslParser.Logic {
                 .FirstOrDefault(t => t.Name == "div")
                 ?.Descendants()
                 ?.Where(t => t.Name == "a" && t.Attributes["class"]?.Value?.Contains("alphacat-letter rsl-filter") == true)
-                ?.Select(t => new SearchLetter { Letter = t.InnerText })
+                ?.Select(t => new SearchLetter(t.InnerText))
                 ?.ToList();
         }
 
