@@ -4,7 +4,7 @@ namespace RslParser.Types {
     /// <summary>
     /// 
     /// </summary>
-    public class BookInfo {
+    public class Book {
         /// <summary>
         /// Авторы книги
         /// </summary>

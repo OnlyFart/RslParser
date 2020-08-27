@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -51,7 +52,8 @@ namespace RslParser.Logic {
                             _logger.Error($"Не удалось получить список ссылок на книги для '{letter.Letter}', языка '{letter.Lang}', страница {page}/{response.MaxPage}");
                             continue;
                         }
-
+                        
+                        var books = new List<Book>();
                         foreach (var bookLink in links.Select(link => new Uri(_baseUrl, link))) {
                             var bookResponse = await HttpClientHelper.GetStringAsync(client, bookLink);
                             if (string.IsNullOrWhiteSpace(bookResponse)) {
@@ -68,8 +70,10 @@ namespace RslParser.Logic {
                             bookDoc.Lang = letter.Lang;
                             bookDoc.Link = bookLink.ToString();
 
-                            await ProcessBookInfo(bookDoc);
+                            books.Add(bookDoc);
                         }
+                        
+                        await ProcessBooks(books);
                     } while (errorCount < _config.MaxErrorCount && (response == null || ++page <= response.MaxPage) && page <= letter.EndPage);
                 }
             }
@@ -235,11 +239,11 @@ namespace RslParser.Logic {
         /// </summary>
         /// <param name="html"></param>
         /// <returns></returns>
-        private static BookInfo ParseBook(string html) {
+        private static Book ParseBook(string html) {
             var bookDoc = new HtmlDocument();
             bookDoc.LoadHtml(html);
 
-            var bookInfo = new BookInfo();
+            var bookInfo = new Book();
             var descriptionBlock = bookDoc.DocumentNode.Descendants().FirstOrDefault(t => t.Name == "div" && t.Attributes["class"]?.Value?.Contains("rsl-itemdescr-col") == true);
 
             if (descriptionBlock != null) {
@@ -270,10 +274,14 @@ namespace RslParser.Logic {
             return bookInfo;
         }
 
-        private async Task ProcessBookInfo(BookInfo bookInfo) {
-            if (_config.ProcessUrl != null) {
+        private async Task ProcessBooks(List<Book> bookInfos) {
+            if (_config.ProcessUrl != null && bookInfos.Count > 0) {
                 using (var client = new HttpClient()) {
-                    await HttpClientHelper.PostAsync(client, _config.ProcessUrl, new StringContent(JsonConvert.SerializeObject(bookInfo)));
+                    var data = JsonConvert.SerializeObject(bookInfos);
+                    var res = await HttpClientHelper.PostAsync(client, _config.ProcessUrl, new StringContent(data));
+                    if (res == null || res.StatusCode != HttpStatusCode.OK) {
+                        LogManager.GetLogger("ProcessError").Error(data);
+                    }
                 }
             }
         }

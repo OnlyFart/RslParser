@@ -17,6 +17,9 @@ namespace RslParser.Configs {
         [Option("proxy", Required = false, HelpText = "Прокси в формате <host>:<port>", Default = "")]
         public string Proxy { get; set; }
         
+        [Option("pu", Required = false, HelpText = "Url для отправки данных. ", Default = null)]
+        public string ProcessUrl { get; set; }
+        
         [Option("error", Required = false, HelpText = "Максимальное кол-во ошибок после которых парсинг остановится", Default = int.MaxValue)]
         public int MaxErrorCount { get; set; }
     }

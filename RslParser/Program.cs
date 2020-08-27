@@ -17,7 +17,7 @@ namespace RslParser {
                         .AddJsonFile("appsettings.json", true, true)
                         .Build();
 
-                    var processUrl = appConfig.GetValue<string>("ProcessUrl");
+                    var processUrl = options.ProcessUrl ?? appConfig.GetValue<string>("ProcessUrl");
                     
                     var config = new RslParserConfig {
                         StartParams = new Params {
